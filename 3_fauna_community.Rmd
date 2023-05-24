@@ -1,0 +1,184 @@
+---
+title: "fauna community analysis"
+author: "Lydia White, Leena Virta & Nico Henry"
+date: "2023-05-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+```
+
+First we load libraries (which you should already have installed), we will aslo need vegan for doing multivariate analysis 
+
+```{r}
+library(tidyverse)
+library(googlesheets4)
+library(ggtext)
+library(car)
+library(vegan)
+```
+
+#Fauna community 
+
+## Abundance 
+
+### Visualise differences in abundance
+
+Boxplot of total abundance per m2 for different sites 
+
+```{r}
+gs4_deauth()
+abundance <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg" , sheet = "benthos_abundance_m2")
+
+ggplot(abundance, aes(x=site, y= total_abundance, fill = site)) + 
+  geom_boxplot()
+
+```
+
+We can tidy up the plot a bit, we edit the y axis label and remove the legend 
+
+```{r}
+ggplot(abundance, aes(x=site, y=total_abundance, fill=site)) + 
+  geom_boxplot() +
+  ylab("total macrofauna abundance per m2") +
+  theme(legend.position="none") 
+
+```
+
+You can do the same for species richness, but we need to seperate the species abundance matrix and site information into 2 different dataframes. 
+
+R doesn't recognise empty spaces from the excel file, we need to tell it they are zeros. 
+So we replace NA with zero on all numeric columns. 
+
+```{r}
+species_matrix <- abundance %>% select (-site, -date, -replicate, -treatment, -total_abundance) %>% data.frame(row.names = "sample")
+
+environmental_table <- abundance %>% select (sample, site, date, replicate, treatment, total_abundance) 
+
+species_matrix <- mutate_all(species_matrix, ~as.numeric(replace_na(.,0)))
+
+richness <- specnumber(species_matrix) 
+
+richness <- tibble(sample = names(richness), species_richness = richness) %>% 
+  inner_join( environmental_table)
+
+ggplot(richness, aes(x=site, y=species_richness, fill=site)) + 
+  geom_boxplot() +
+  ylab("mean species richness per quadrat") +
+  theme(legend.position="none") 
+
+```
+
+### Test differences with models
+
+One way ANOVA 
+
+```{r}
+anova1 <- aov(species_richness~ site, data = richness)
+summary(anova1)
+```
+
+Check assumptions etc... 
+
+```{r}
+# write script here (copy and paste from previous scripts and change variable names etc)
+```
+
+
+### Multivariate analysis 
+
+Standardise from absolute abundance to relative abundance
+
+```{r}
+
+species_matrix_rel <-         
+  decostand(species_matrix, method = "total")
+
+```
+
+#### NMDS plot
+
+Calculate distance matrix and plot NMDS. 
+
+```{r}
+species_matrix_distmat <- 
+  vegdist(species_matrix_rel, method = "bray")
+
+species_matrix_NMDS <-
+  metaMDS(species_matrix_distmat,
+          distance = "bray",
+          k = 2,
+          maxit = 999, 
+          trymax = 500,
+          wascores = TRUE)
+
+scores <- as_tibble(scores(species_matrix_NMDS), rownames = "sample")
+
+final <- inner_join(environmental_table, scores)
+
+ggplot(final, aes(x= NMDS1, y= NMDS2, colour = site)) + 
+  geom_point( ) + 
+  stat_ellipse()
+
+```
+
+#### PERMANOVA 
+
+We can do a PERMANOVA, analogous to a ANOVA, but for multivariate data, to see if communities differ between site. We need to check the assumptions of homogeneous dispersion between groups before doing a PERMANOVA. p < 0.05 means that they are not homogeneous. 
+
+```{r}
+disper <- betadisper(species_matrix_distmat, environmental_table$site)
+plot(disper)
+anova(disper)
+```
+
+then we run the PERMANOVA.
+
+```{r}
+adonis2(species_matrix_rel ~ site, data = environmental_table, permutations = 999)
+
+```
+
+Then pairwise tests to see which groups differ. You can load a special function for this. See for more info: https://github.com/pmartinezarbizu/pairwiseAdonis
+
+```{r}
+
+source("pairwise_adonis2.R")
+
+pairwise.adonis2 (species_matrix_rel ~ site, data = environmental_table, permutations = 999)
+
+```
+
+### Biomass  
+
+You could also do analysis on total biomass and multivariate analysis on biomass instead of abundance. You could copy and adapt the scripts for the biomass data. 
+
+#### Visualise and run models
+
+```{r}
+biomass <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg", sheet = "benthos_biomass_m2")
+
+ggplot(biomass, aes(x=site, y=total_biomass, fill=site)) + 
+  geom_boxplot() +
+  ylab("g total macrofauna biomass per m2") +
+  theme(legend.position="none") 
+
+# write scripts here (copy and paste from above and change variable names etc)
+
+```
+
+#### Multivariate analysis
+
+
+```{r}
+species_matrix <- biomass %>% select (-site, -date, -replicate, -treatment, -total_biomass, -total_biomass_dry, -total_biomass_carbon) %>% data.frame(row.names = "sample")
+
+environmental_matrix <- biomass %>% select (sample, site, date, replicate, treatment, total_biomass)
+
+species_matrix <- mutate_all(species_matrix, ~as.numeric(replace_na(.,0)))
+
+# write scripts here (copy and paste from above and change variable names etc)
+```
+
+

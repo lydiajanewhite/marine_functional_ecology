@@ -1,0 +1,151 @@
+---
+title: "Sediment fluxes"
+author: "Lydia White & Leena Virta"
+date: "2023-05-22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+```
+
+First we load libraries (which you should already have installed). 
+
+```{r}
+library(tidyverse)
+library(googlesheets4)
+library(ggtext)
+library(car)
+library(patchwork)
+library(ggpubr)
+```
+
+
+# Sediment fluxes
+
+We load the data. 
+
+```{r}
+gs4_deauth()
+fluxes <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg", sheet = "sediment_fluxes") 
+
+```
+
+## Visualise differences in sediment fluxes
+
+Visualise with boxplots of O2 and ammonium for different sites. 
+
+```{r}
+ggplot(fluxes, aes(x=site, y= `O2_flux µg per square metre per hour`, fill = site)) + 
+  geom_boxplot() +
+  ylab("µg O2 per square metre per hour") +
+  theme(legend.position="none")
+
+ggplot(fluxes, aes(x=site, y= `NH4_flux µg per square metre per hour`, fill = site)) + 
+  geom_boxplot() +
+  ylab("µg NH4-N per square metre per hour") +
+  theme(legend.position="none")
+
+```
+
+You could also test for differences with models (ANOVA, Kruskal-Wallis etc)
+
+```{r}
+# write script here (copy and paste from previous scripts and change variable names etc)
+```
+
+## Are fluxes affected by fauna?
+
+We can explore how fluxes from the sediment are affected by faunal communities via scatter plots. We also need to load in the fauna data. 
+
+### Abundance & Biomass
+
+```{r}
+abundance <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg", sheet = "benthos_abundance_m2")
+
+abundance <- abundance %>% select(sample, total_abundance)
+  
+biomass <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg", sheet = "benthos_biomass_m2")
+biomass  <- biomass %>% select(sample, total_biomass)
+
+```
+
+We can join the flux data and the fauna together as a single dataframe, we join them by their unique sample ID 
+
+```{r}
+summary <- inner_join(fluxes, abundance, by = "sample") %>%
+  inner_join(., biomass, by = "sample")
+
+```
+
+### Visualise relationshps with scatter plot 
+
+```{r}
+
+plot_1 <- ggplot(summary, aes(x=total_abundance, y= `O2_flux µg per square metre per hour`)) + 
+  geom_point() 
+
+plot_2 <- ggplot(summary, aes(x=total_biomass, y= `O2_flux µg per square metre per hour`)) + 
+  geom_point() 
+
+plot_3 <- ggplot(summary, aes(x=total_abundance, y= `NH4_flux µg per square metre per hour`)) + 
+  geom_point() 
+
+plot_4 <- ggplot(summary, aes(x=total_biomass, y= `NH4_flux µg per square metre per hour`)) + 
+  geom_point() 
+
+(plot_1 + plot_2)/
+  (plot_3 + plot_4)
+
+```
+
+
+### Check assumptions for correlation
+
+Check if data is normal for the 4 variables with shapiro-wilk test, p < 0.05 means data is not normally distributed. 
+If data is normal use pearsons correlation, if its non-normal then use spearmans rank.
+
+```{r}
+shapiro.test(summary$total_abundance)
+shapiro.test(summary$total_biomass)
+shapiro.test(summary$`O2_flux µg per square metre per hour`)
+shapiro.test(summary$`NH4_flux µg per square metre per hour`)
+```
+
+Some are normal, some might not be, we can replot the data showing significant correlations. 
+Adjust which correlation test you use depending if variables are non-normal or normal. 
+Adapt examples below for your data. 
+
+```{r}
+plot_1 <- ggscatter(summary, x = "total_abundance", y = "O2_flux µg per square metre per hour", 
+          cor.coef = TRUE, cor.method = "spearman",
+          xlab = "total fauna abundance", ylab = "oxygen flux")
+
+plot_2 <- ggscatter(summary, x = "total_biomass", y = "O2_flux µg per square metre per hour", 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "total fauna biomass", ylab = "oxygen flux")
+
+# adapt script above, using the correct correlation test, add script here for plots 3 and 4 and put together in one plot 
+
+(plot_1 + plot_2)/
+  (plot_3)
+
+
+```
+
+If one of them is significant we can redo figure with added significance line. 
+
+```{r}
+
+plot_3 <- ggscatter(summary, x = "total_abundance", y = "NH4_flux µg per square metre per hour", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "spearman",
+          xlab = "total fauna abundance", ylab = "ammonium flux")
+
+(plot_1 + plot_2)/
+  (plot_3 + plot_4)
+```
+
+## Are fluxes affected by organic matter in the sediment?
+
+

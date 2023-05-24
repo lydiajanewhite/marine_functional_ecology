@@ -1,0 +1,135 @@
+---
+title: "fucus productivity"
+author: "Lydia White & Leena Virta"
+date: "2023-05-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+```
+
+First we load libraries (which you should already have installed).
+
+```{r}
+library(tidyverse)
+library(googlesheets4)
+library(ggtext)
+library(car)
+```
+
+## Visualise differences in NPP
+
+Load data. 
+
+```{r}
+gs4_deauth()
+
+productivity <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg", sheet = "fucus_productivity_summary") 
+
+```
+
+Visualise with boxplot of NPP and CR and GPP, per g of fucus for different sites.
+We can make less work for ourselves and plot all the data at once, but we have to reformat the data into long format first.
+
+```{r}
+
+ggplot(productivity, aes(x=site, y= NPP, fill = site))+
+  geom_boxplot()
+
+productivity_long <- productivity %>% pivot_longer(cols = c("NPP", "CR", "GPP"), names_to = "metabolism", values_to = "carbon_flux") 
+  
+ggplot(productivity_long, aes(x=site, y= carbon_flux, fill = site))+
+  geom_boxplot() +
+  facet_wrap(~metabolism)
+
+```
+
+We can tidy up the plot a bit, we 1) edit the y axis label and 2) remove the legend 
+
+```{r}
+
+ggplot(productivity_long, aes(x=site, y= carbon_flux, fill = site))+
+  geom_boxplot() +
+  facet_wrap(~metabolism) +
+  ylab("g carbon per g fucus per hour") +
+  theme(legend.position="none")
+
+```
+
+## Test differences with models
+
+Lets explore these differences with statistical models, we can use one-way ANOVA to test if carbon fluxes significantly differ between sites 
+
+```{r}
+
+anova1 <- aov(NPP ~ site, data = productivity)
+summary(anova1)
+```
+
+### Checking assumptions of your model
+
+The ANOVA test assumes that, the residuals from the model are normally distributed and the variance across groups are homogeneous (i.e. similar). We can check that with some diagnostic plots.
+
+#### Homogeneity of variances
+
+The residuals versus fits plot can be used to check the homogeneity of variances, the line. shoud be approximately straight
+
+```{r}
+plot(anova1, 1)
+
+```
+
+It’s also possible to use Levene’s test to check the homogeneity of variances. p < 0.05 means that they are not homogeneous. 
+
+```{r}
+
+leveneTest(NPP ~ site, data = productivity)
+```
+
+
+#### Normally distributed residuals
+
+The normal probability plot of residuals is used to check the assumption 
+that the residuals are normally distributed. 
+It should approximately follow a straight line.
+
+```{r}
+plot(anova1, 2)
+```
+
+It’s also possible to use shapiro wilk test to check if the residuals are normally distributed. p < 0.05 means that they are not normally distributed.  
+
+```{r}
+shapiro.test(rstandard(anova1))
+
+```
+
+
+In one-way ANOVA test, a significant p-value indicates that some of the group means are different, but we don’t know which pairs of groups are different.
+It’s possible to perform multiple pairwise-comparison, to determine if the mean difference between specific pairs of group are statistically significant.
+
+```{r}
+TukeyHSD(anova1)
+```
+
+### What if assumptions are not met?
+
+Note that, a non-parametric alternative to one-way ANOVA is Kruskal-Wallis 
+rank sum test, which can be used when ANOVA assumptions are not met.
+
+```{r}
+kruskal.test(NPP ~ site, data = productivity)
+
+```
+
+## Differences in CR and GPP between sites
+
+You could also carry out ANOVAs on the other parameters, to see if CR and GPP differ between sites. 
+
+```{r}
+# write scripts here (copy and paste from above and change variable names)
+
+```
+
+
