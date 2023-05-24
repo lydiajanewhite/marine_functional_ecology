@@ -2,7 +2,12 @@
 title: "Sediment fluxes"
 author: "Lydia White & Leena Virta"
 date: "2023-05-22"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    theme: united
 ---
 
 ```{r setup, include=FALSE}
@@ -14,8 +19,6 @@ First we load libraries (which you should already have installed).
 ```{r}
 library(tidyverse)
 library(googlesheets4)
-library(ggtext)
-library(car)
 library(patchwork)
 library(ggpubr)
 ```
