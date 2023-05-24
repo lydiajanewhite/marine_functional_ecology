@@ -1,13 +1,20 @@
 ---
-title: "carbon stocks analysis"
+title: "Carbon stocks analysis"
 author: "Lydia White & Leena Virta"
 date: "2023-05-18"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    theme: united
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
+
+## Introduction
 
 Workflow for analysis and figures for Marine Functional Ecology course 2023
 
@@ -15,59 +22,78 @@ Examples of each type of anaysis are given, that can be adapted to explore other
 
 Overall goal of the course is to explore diffences in carbon stocks, carbon fluxes and the ecological  communites which underpin these, between different sites around Tvärminne Zoological Station. 
 
+## Set up our environment
+
+### Load libraries
+
 First we load libraries (which you should already have installed) 
 
 ```{r}
 library(tidyverse)
 library(googlesheets4)
-library(ggtext)
-library(car)
+```
+
+### Import data
+
+```{r}
+# this function allows you to reads public google sheets without having to log in
+gs4_deauth()
+
+# import carbon_stocks_m2 sheet
+stocks <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg", sheet = "carbon_stocks_m2")
+
 ```
 
 ## Visualise carbon stocks with boxplots
 
-Lets visualise differences in carbon stocks with boxplots, which illustrate the median value and the spread of the second and third quartile. The lower and upper quartiles are shown as horizontal lines either side of the rectangle.
-
-Boxplots need the explanatory variable to be categorical. 
+Boxplots need the explanatory variable to be categorical. So we convert the column `site`,
+recognised as numerical during the import, into characters.
 
 ```{r}
-gs4_deauth()
-stocks <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg", sheet = "carbon_stocks_m2")
-
-stocks <- stocks %>% 
+# convert site column from numerical to characters
+stocks <- stocks %>%
   mutate(site = as.character(site))
-
-ggplot(stocks, aes(x=site, y= C_total, fill = site)) + 
-  geom_boxplot() 
 ```
-  
+
+Lets now visualise differences in carbon stocks with boxplots, which illustrate the median value and the spread of the second and third quartile.
+The lower and upper quartiles are shown as horizontal lines either side of the rectangle.
+
+```{r}
+ggplot(stocks, aes(x = site, y = C_total, fill = site)) +
+  geom_boxplot()
+```
+
 We can make less work for ourselves and plot all the data at once, but we have to reformat the data into long format first.
   
 ```{r}
-stocks_long <- stocks %>% pivot_longer(cols = starts_with("C"), names_to = "compartment", values_to = "carbon_stock") 
-  
-ggplot(stocks_long, aes(x=site, y= carbon_stock, fill = site))+
-  geom_boxplot() +
-  facet_wrap(~compartment)
-             
+stocks_long <- stocks %>%
+  pivot_longer(cols = starts_with("C"), names_to = "compartment", values_to = "carbon_stock") 
 ```
 
-We can tidy up the plot a bit, we 1) edit the order of the plots, 2) edit the y axis label and 3) remove the legend 
+```{r}
+ggplot(stocks_long, aes(x = site, y = carbon_stock, fill = site)) +
+  geom_boxplot() +
+  facet_wrap(~ compartment)
+```
+
+We can tidy up the plot a bit, we **1)** edit the order of the plots, **2)** edit the y axis label and **3)** remove the legend 
 
 ```{r}
-ggplot(stocks_long, aes(x=site, y= carbon_stock, fill = site)) + 
+compartment_order <- c("C_total", "C_benthos", "C_vegetation",
+                       "C_microphytobenthos", "C_sediment")
+
+ggplot(stocks_long, aes(x = site, y = carbon_stock, fill = site)) +
   geom_boxplot() +
-  facet_wrap(~factor(compartment, levels=c('C_total', 'C_benthos', 'C_vegetation', 'C_microphytobenthos', 'C_sediment'))) +
+  facet_wrap(~ factor(compartment, levels = compartment_order)) +
   ylab("g carbon per m2") +
-  theme(legend.position="none")
+  theme(legend.position = "none")
 ```
 
 ## Test differences with models
 
-Lets explore these differences with statistical models, we can use one-way ANOVA to test if carbon stocks significantly differ between sites 
+Let's explore these differences with statistical models, we can use one-way ANOVA to test if carbon stocks significantly differ between sites 
 
 ```{r}
-
 anova1 <- aov(C_total ~ site, data = stocks)
 summary(anova1)
 ```
@@ -79,20 +105,20 @@ The ANOVA test assumes that, the residuals from the model are normally distribut
 #### Homogeneity of variances
 
 The residuals versus fits plot can be used to check the homogeneity of variances, the line. shoud be approximately straight
+For more information about diagnostic plots for `lm` objects type `?plot.lm` in your console.
+As you can read in the documentation of the function, `1` is for "Residuals vs Fitted", aka ‘Tukey-Anscombe’ plot
 
 ```{r}
-plot(anova1, 1)
-
+plot(anova1, which = 1)
 ```
 
-It’s also possible to use Levene’s test to check the homogeneity of variances. p < 0.05 means that they are not homogeneous. 
-
+It’s also possible to use Levene’s test to check the homogeneity of variances.
+p < 0.05 means that they are not homogeneous.
+`car::` allows you to use a function from `car` without loading all the library.
 
 ```{r}
-
-leveneTest(C_total ~ site, data = stocks)
+car::leveneTest(C_total ~ site, data = stocks)
 ```
-
 
 #### Normally distributed residuals
 
@@ -101,16 +127,15 @@ that the residuals are normally distributed.
 It should approximately follow a straight line.
 
 ```{r}
-plot(anova1, 2)
+plot(anova1, which = 2)
 ```
 
 It’s also possible to use shapiro wilk test to check if the residuals are normally distributed. p < 0.05 means that they are not normally distributed.   
 
 ```{r}
-shapiro.test(rstandard(anova1))
-
+my_residuals <- rstandard(anova1)
+shapiro.test(my_residuals)
 ```
-
 
 In one-way ANOVA test, a significant p-value indicates that some of the group means are different, but we don’t know which pairs of groups are different.
 It’s possible to perform multiple pairwise-comparison, to determine if the mean difference between specific pairs of group are statistically significant.
@@ -126,7 +151,6 @@ rank sum test, which can be used when ANOVA assumptions are not met.
 
 ```{r}
 kruskal.test(C_total ~ site, data = stocks)
-
 ```
 
 ## Compare compartment carbon stocks between sites

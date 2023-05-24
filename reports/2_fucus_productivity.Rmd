@@ -2,7 +2,12 @@
 title: "fucus productivity"
 author: "Lydia White & Leena Virta"
 date: "2023-05-21"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_collapsed: true
+    theme: united
 ---
 
 ```{r setup, include=FALSE}
@@ -14,8 +19,6 @@ First we load libraries (which you should already have installed).
 ```{r}
 library(tidyverse)
 library(googlesheets4)
-library(ggtext)
-library(car)
 ```
 
 ## Visualise differences in NPP
@@ -83,8 +86,7 @@ plot(anova1, 1)
 It’s also possible to use Levene’s test to check the homogeneity of variances. p < 0.05 means that they are not homogeneous. 
 
 ```{r}
-
-leveneTest(NPP ~ site, data = productivity)
+car::leveneTest(NPP ~ site, data = productivity)
 ```
 
 
