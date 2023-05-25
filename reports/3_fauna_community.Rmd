@@ -1,5 +1,5 @@
 ---
-title: "fauna community analysis"
+title: "Fauna community analysis"
 author: "Lydia White, Leena Virta & Nico Henry"
 date: "2023-05-18"
 output: 
@@ -14,7 +14,11 @@ output:
 knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
 ```
 
-First we load libraries (which you should already have installed), we will aslo need vegan for doing multivariate analysis 
+## Set up our environment
+
+### Load libraries
+
+First we load libraries (which you should already have installed), we will also need vegan for doing multivariate analysis 
 
 ```{r}
 library(tidyverse)
@@ -22,21 +26,22 @@ library(googlesheets4)
 library(vegan)
 ```
 
-#Fauna community 
-
 ## Abundance 
 
-### Visualise differences in abundance
-
-Boxplot of total abundance per m2 for different sites 
+### Import data
 
 ```{r}
 gs4_deauth()
 abundance <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg" , sheet = "benthos_abundance_m2")
+```
 
+### Visualise differences in fauna abundance
+
+Boxplot of total abundance per m2 for different sites 
+
+```{r}
 ggplot(abundance, aes(x=site, y= total_abundance, fill = site)) + 
   geom_boxplot()
-
 ```
 
 We can tidy up the plot a bit, we edit the y axis label and remove the legend 
@@ -153,14 +158,19 @@ pairwise.adonis2 (species_matrix_rel ~ site, data = environmental_table, permuta
 
 ```
 
-### Biomass  
+## Biomass  
 
 You could also do analysis on total biomass and multivariate analysis on biomass instead of abundance. You could copy and adapt the scripts for the biomass data. 
 
-#### Visualise and run models
+### Import data
 
 ```{r}
 biomass <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg", sheet = "benthos_biomass_m2")
+```
+
+### Visualise and run models
+
+```{r}
 
 ggplot(biomass, aes(x=site, y=total_biomass, fill=site)) + 
   geom_boxplot() +
@@ -171,8 +181,7 @@ ggplot(biomass, aes(x=site, y=total_biomass, fill=site)) +
 
 ```
 
-#### Multivariate analysis
-
+### Multivariate analysis
 
 ```{r}
 species_matrix <- biomass %>% select (-site, -date, -replicate, -treatment, -total_biomass, -total_biomass_dry, -total_biomass_carbon) %>% data.frame(row.names = "sample")

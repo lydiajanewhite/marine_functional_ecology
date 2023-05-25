@@ -14,6 +14,10 @@ output:
 knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE)
 ```
 
+## Set up our environment
+
+### Load libraries
+
 First we load libraries (which you should already have installed).
 
 ```{r}
@@ -21,16 +25,15 @@ library(tidyverse)
 library(googlesheets4)
 ```
 
-## Visualise differences in NPP
-
-Load data. 
+### Import data
 
 ```{r}
 gs4_deauth()
-
 productivity <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg", sheet = "fucus_productivity_summary") 
 
 ```
+
+## Visualise differences in NPP
 
 Visualise with boxplot of NPP and CR and GPP, per g of fucus for different sites.
 We can make less work for ourselves and plot all the data at once, but we have to reformat the data into long format first.

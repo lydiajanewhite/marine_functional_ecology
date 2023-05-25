@@ -14,14 +14,6 @@ output:
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
-## Introduction
-
-Workflow for analysis and figures for Marine Functional Ecology course 2023
-
-Examples of each type of anaysis are given, that can be adapted to explore other variables that you have collected.  
-
-Overall goal of the course is to explore diffences in carbon stocks, carbon fluxes and the ecological  communites which underpin these, between different sites around Tvärminne Zoological Station. 
-
 ## Set up our environment
 
 ### Load libraries
@@ -46,8 +38,7 @@ stocks <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg", sheet = "ca
 
 ## Visualise carbon stocks with boxplots
 
-Boxplots need the explanatory variable to be categorical. So we convert the column `site`,
-recognised as numerical during the import, into characters.
+Boxplots need the explanatory variable to be categorical. So check if your site is categorical or numerical. If necessary we convert the column `site`, recognised as numerical during the import, into characters.
 
 ```{r}
 # convert site column from numerical to characters
