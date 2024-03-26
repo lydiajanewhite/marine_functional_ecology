@@ -76,6 +76,7 @@ ggplot(richness, aes(x=site, y=species_richness, fill=site)) +
   ylab("mean species richness per quadrat") +
   theme(legend.position="none") 
 
+
 ```
 
 ### Test differences with models
@@ -151,10 +152,18 @@ adonis2(species_matrix_rel ~ site, data = environmental_table, permutations = 99
 Then pairwise tests to see which groups differ. You can load a special function for this. See for more info: https://github.com/pmartinezarbizu/pairwiseAdonis
 
 ```{r}
-
 source(here::here("R", "pairwise_adonis2.R"))
 
 pairwise.adonis2 (species_matrix_rel ~ site, data = environmental_table, permutations = 999)
+```
+
+You can explore which taxa contribute the most to identified differences between groups using SIMPER. 
+
+SIMPER is intended for comparisons among levels of a categorical variable, where the response matrix is expressed as a distance matrix, particularly the Bray-Curtis dissimilarity measure.
+
+```{r}
+test<- with(environmental_table, simper(species_matrix_rel, site))
+summary(test)
 
 ```
 
