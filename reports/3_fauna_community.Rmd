@@ -1,7 +1,7 @@
 ---
 title: "Fauna community analysis"
-author: "Lydia White, Leena Virta & Nico Henry"
-date: "2023-05-18"
+author: "Lydia White & Nico Henry"
+date: "2024-05-18"
 output: 
   html_document:
     toc: true
@@ -32,12 +32,17 @@ library(vegan)
 
 ```{r}
 gs4_deauth()
-abundance <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg" , sheet = "benthos_abundance_m2")
+
+#abundance <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s" , sheet = "benthos_abundance_per sample")
+
+abundance <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc" , sheet = "benthos_abundance_per sample")
+
+
 ```
 
 ### Visualise differences in fauna abundance
 
-Boxplot of total abundance per m2 for different sites 
+Boxplot of total abundance per sample for different sites 
 
 ```{r}
 ggplot(abundance, aes(x=site, y= total_abundance, fill = site)) + 
@@ -49,7 +54,7 @@ We can tidy up the plot a bit, we edit the y axis label and remove the legend
 ```{r}
 ggplot(abundance, aes(x=site, y=total_abundance, fill=site)) + 
   geom_boxplot() +
-  ylab("total macrofauna abundance per m2") +
+  ylab("total macrofauna abundance per sample") +
   theme(legend.position="none") 
 
 ```
@@ -174,32 +179,26 @@ You could also do analysis on total biomass and multivariate analysis on biomass
 ### Import data
 
 ```{r}
-biomass <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg", sheet = "benthos_biomass_m2")
+
+#biomass<- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s" , sheet = "benthos_biomass_per sample")
+
+biomass <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc", sheet = "benthos_biomass_per sample")
+
+
 ```
 
 ### Visualise and run models
 
 ```{r}
 
-ggplot(biomass, aes(x=site, y=total_biomass, fill=site)) + 
+ggplot(biomass, aes(x=site, y=total_biomass_dry, fill=site)) + 
   geom_boxplot() +
-  ylab("g total macrofauna biomass per m2") +
+  ylab("g total macrofauna dry biomass per sample") +
   theme(legend.position="none") 
 
 # write scripts here (copy and paste from above and change variable names etc)
 
 ```
 
-### Multivariate analysis
-
-```{r}
-species_matrix <- biomass %>% select (-site, -date, -replicate, -treatment, -total_biomass, -total_biomass_dry, -total_biomass_carbon) %>% data.frame(row.names = "sample")
-
-environmental_matrix <- biomass %>% select (sample, site, date, replicate, treatment, total_biomass)
-
-species_matrix <- mutate_all(species_matrix, ~as.numeric(replace_na(.,0)))
-
-# write scripts here (copy and paste from above and change variable names etc)
-```
-
+In order to do multivariate stastitics on biomass data, individual species must be weighed which is not feasible here, due to low abudances in our samples. 
 

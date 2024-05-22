@@ -1,7 +1,7 @@
 ---
 title: "Sediment fluxes"
-author: "Lydia White & Leena Virta"
-date: "2023-05-22"
+author: "Lydia White"
+date: "2024-05-22"
 output: 
   html_document:
     toc: true
@@ -31,7 +31,11 @@ library(ggpubr)
 
 ```{r}
 gs4_deauth()
-fluxes <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg", sheet = "sediment_fluxes") 
+
+# fluxes <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s", sheet = "sediment_fluxes") 
+
+fluxes <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc", sheet = "sediment_fluxes") 
+
 
 ```
 
@@ -40,9 +44,9 @@ fluxes <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg", sheet = "se
 Visualise with boxplots of O2 and ammonium for different sites. 
 
 ```{r}
-ggplot(fluxes, aes(x=site, y= `O2_flux µg per square metre per hour`, fill = treatment)) + 
+ggplot(fluxes, aes(x=site, y= `O2_flux mg per square metre per hour`, fill = treatment)) + 
   geom_boxplot() +
-  ylab("µg O2 per square metre per hour")
+  ylab("mg O2 per square metre per hour")
 
 ggplot(fluxes, aes(x=site, y= `NH4_flux µg per square metre per hour`, fill =  treatment)) + 
   geom_boxplot() +
@@ -53,23 +57,35 @@ ggplot(fluxes, aes(x=site, y= `NH4_flux µg per square metre per hour`, fill =  
 You could also test for differences with models (ANOVA, Kruskal-Wallis etc), you could do this separately for light and dark treatments.
 
 ```{r}
-light <- fluxes %>% filter (treatment =="light")
-dark <- fluxes %>% filter (treatment =="dark")
+light <- fluxes %>% filter (treatment =="L")
+dark <- fluxes %>% filter (treatment =="D")
   
 # write script here (copy and paste from previous scripts and change variable names etc)
 ```
 
 ## Are fluxes affected by fauna?
 
-We can explore how fluxes from the sediment are affected by faunal communities via scatter plots. We also need to load in the fauna data. 
+We can explore how fluxes from the sediment are affected by faunal communities via scatter plots. We also need to load in the fauna data, which is per sample. 
+
+So we scale up the fauna data to per m squared by multiplying by 0.042^2*PI (i.e. the surface area of the core) 
 
 ### Import data
 ```{r}
-abundance <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg", sheet = "benthos_abundance_m2")
-abundance <- abundance %>% select(sample, total_abundance)
-  
-biomass <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg", sheet = "benthos_biomass_m2")
-biomass  <- biomass %>% select(sample, total_biomass)
+
+#abundance <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s" , sheet = "benthos_abundance_per sample")
+
+abundance <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc" , sheet = "benthos_abundance_per sample")
+
+abundance <- abundance %>% select(sample, total_abundance) %>% 
+  mutate (total_abundance = total_abundance*0.042^2*pi)
+
+
+#biomass <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s" , sheet = "benthos_biomass_per sample")
+
+biomass <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc" , sheet = "benthos_biomass_per sample")
+
+biomass  <- biomass %>% select(sample, total_biomass_dry) %>% 
+  mutate (total_biomass_dry = total_biomass_dry*0.042^2*pi)
 
 ```
 
@@ -86,10 +102,10 @@ summary <- inner_join(dark, abundance, by = "sample") %>%
 
 ```{r}
 
-plot_1 <- ggscatter(summary, x = "total_abundance", y = "O2_flux µg per square metre per hour")
+plot_1 <- ggscatter(summary, x = "total_abundance", y = "O2_flux mg per square metre per hour")
 plot_2 <- ggscatter(summary, x = "total_abundance", y = "NH4_flux µg per square metre per hour")
-plot_3 <- ggscatter(summary, x = "total_biomass", y = "O2_flux µg per square metre per hour")
-plot_4 <- ggscatter(summary, x = "total_biomass", y = "NH4_flux µg per square metre per hour")
+plot_3 <- ggscatter(summary, x = "total_biomass_dry", y = "O2_flux mg per square metre per hour")
+plot_4 <- ggscatter(summary, x = "total_biomass_dry", y = "NH4_flux µg per square metre per hour")
 
 (plot_1 + plot_2)/
   (plot_3 + plot_4)
@@ -103,8 +119,8 @@ If data is normal use pearsons correlation, if its non-normal then use spearmans
 
 ```{r}
 shapiro.test(summary$total_abundance)
-shapiro.test(summary$total_biomass)
-shapiro.test(summary$`O2_flux µg per square metre per hour`)
+shapiro.test(summary$total_biomass_dry)
+shapiro.test(summary$`O2_flux mg per square metre per hour`)
 shapiro.test(summary$`NH4_flux µg per square metre per hour`)
 ```
 
@@ -113,7 +129,7 @@ Adjust which correlation test you use depending if variables are non-normal or n
 Adapt examples below for your data. 
 
 ```{r}
-plot_1 <- ggscatter(summary, x = "total_abundance", y = "O2_flux µg per square metre per hour",
+plot_1 <- ggscatter(summary, x = "total_abundance", y = "O2_flux mg per square metre per hour",
           cor.coef = TRUE, cor.method = "pearson",
           xlab = "total fauna abundance", ylab = "oxygen flux") 
 
@@ -133,7 +149,7 @@ plot_2 <- ggscatter(summary, x = "total_abundance", y = "NH4_flux µg per square
 If one of them is significant we can redo figure with added significance line. Adapt to whichever plot is significant. 
 
 ```{r}
-plot_1 <- ggscatter(summary, x = "total_abundance", y = "O2_flux µg per square metre per hour",
+plot_1 <- ggscatter(summary, x = "total_abundance", y = "O2_flux mg per square metre per hour",
           add = "reg.line", conf.int = TRUE, 
           cor.coef = TRUE, cor.method = "pearson",
           xlab = "total fauna abundance", ylab = "oxygen flux") 
@@ -150,17 +166,21 @@ We can also explore how fluxes from the sediment are affected by the amount of c
 
 ### Import data
 
+But we only need dark core carbon stock data, as we are comparing against respiration rates, and we don't need carbon stock data from the deep site you visited with Augusta as we didn't carry out any incubations there. 
 ```{r}
-carbon_stocks<- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg", sheet = "carbon_stocks_m2")
 
-sed_summary <- inner_join(dark, carbon_stocks, by = c("site", "replicate"))
+# carbon_stocks <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s", sheet = "carbon_stocks_m2") 
+
+carbon_stocks <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc", sheet = "carbon_stocks_m2") 
+
+sed_summary <- inner_join(dark, carbon_stocks, by = c("site", "treatment", "replicate"))
 ```
 
 ### Visualise relationships with scatter plots 
 
 ```{r}
 
-plot_5 <- ggscatter(sed_summary, x = "C_sediment", y = "O2_flux µg per square metre per hour")
+plot_5 <- ggscatter(sed_summary, x = "C_sediment", y = "O2_flux mg per square metre per hour")
 plot_6 <- ggscatter(sed_summary, x = "C_sediment", y = "NH4_flux µg per square metre per hour")
 
 plot_5 + plot_6
@@ -181,7 +201,7 @@ We can replot with correlation coefficients.
 
 ```{r}
 
-plot_5 <- ggscatter(sed_summary, x = "C_sediment", y = "O2_flux µg per square metre per hour",
+plot_5 <- ggscatter(sed_summary, x = "C_sediment", y = "O2_flux mg per square metre per hour",
           cor.coef = TRUE, cor.method = "spearman",
           xlab = "sediment carbon content", ylab = "oxygen flux") 
 

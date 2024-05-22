@@ -1,7 +1,7 @@
 ---
 title: "fucus productivity"
-author: "Lydia White & Leena Virta"
-date: "2023-05-21"
+author: "Lydia White"
+date: "2024-05-21"
 output: 
   html_document:
     toc: true
@@ -29,7 +29,10 @@ library(googlesheets4)
 
 ```{r}
 gs4_deauth()
-productivity <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg", sheet = "fucus_productivity_summary") 
+#productivity <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s", sheet = "fucus_productivity_summary") 
+
+productivity <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc", sheet = "fucus_productivity_summary") 
+
 
 ```
 

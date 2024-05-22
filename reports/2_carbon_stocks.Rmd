@@ -1,7 +1,7 @@
 ---
 title: "Carbon stocks analysis"
-author: "Lydia White & Leena Virta"
-date: "2023-05-18"
+author: "Lydia White"
+date: "2024-05-18"
 output: 
   html_document:
     toc: true
@@ -32,7 +32,11 @@ library(googlesheets4)
 gs4_deauth()
 
 # import carbon_stocks_m2 sheet
-stocks <- read_sheet("1_HAbVc0HTqO6iMY_jTmrq6zVtyEmIokK3xqg6-RjNVg", sheet = "carbon_stocks_m2")
+
+#stocks <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s", sheet = "carbon_stocks_m2")
+
+stocks <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc", sheet = "carbon_stocks_m2")
+
 
 ```
 
