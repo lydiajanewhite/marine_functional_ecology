@@ -1,7 +1,7 @@
 ---
 title: "fucus productivity"
 author: "Lydia White"
-date: "2024-05-21"
+date: "2025-05-24"
 output: 
   html_document:
     toc: true
@@ -29,9 +29,9 @@ library(googlesheets4)
 
 ```{r}
 gs4_deauth()
-#productivity <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s", sheet = "fucus_productivity_summary") 
+#productivity <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s", sheet = "fucus_productivity_summary") #2025
 
-productivity <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc", sheet = "fucus_productivity_summary") 
+productivity <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc", sheet = "fucus_productivity_summary") #2024
 
 
 ```

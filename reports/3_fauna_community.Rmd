@@ -1,7 +1,7 @@
 ---
 title: "Fauna community analysis"
 author: "Lydia White & Nico Henry"
-date: "2024-05-18"
+date: "2025-05-24"
 output: 
   html_document:
     toc: true
@@ -33,9 +33,9 @@ library(vegan)
 ```{r}
 gs4_deauth()
 
-#abundance <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s" , sheet = "benthos_abundance_per sample")
+#abundance <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s" , sheet = "benthos_abundance_per sample") #2025
 
-abundance <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc" , sheet = "benthos_abundance_per sample")
+abundance <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc" , sheet = "benthos_abundance_per sample") #2024
 
 
 ```

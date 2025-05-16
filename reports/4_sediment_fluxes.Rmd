@@ -1,7 +1,7 @@
 ---
 title: "Sediment fluxes"
 author: "Lydia White"
-date: "2024-05-22"
+date: "2025-05-24"
 output: 
   html_document:
     toc: true
@@ -32,9 +32,9 @@ library(ggpubr)
 ```{r}
 gs4_deauth()
 
-# fluxes <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s", sheet = "sediment_fluxes") 
+# fluxes <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s", sheet = "sediment_fluxes") #2025
 
-fluxes <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc", sheet = "sediment_fluxes") 
+fluxes <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc", sheet = "sediment_fluxes") #2024
 
 
 ```
