@@ -125,18 +125,19 @@ shapiro.test(summary$`NH4_flux µg per square metre per hour`)
 ```
 
 Some are normal, some might not be, we can replot the data showing correlation coefficents. 
-Adjust which correlation test you use depending if variables are non-normal or normal. 
+Adjust which correlation test (spearmans rank or pearsons) you use depending if variables are non-normal or normal. 
 Adapt examples below for your data. 
 
 ```{r}
 plot_1 <- ggscatter(summary, x = "total_abundance", y = "O2_flux mg per square metre per hour",
-          cor.coef = TRUE, cor.method = "pearson",
+          cor.coef = TRUE, cor.method = "spearman", # not-normal
           xlab = "total fauna abundance", ylab = "oxygen flux") 
 
-
-plot_2 <- ggscatter(summary, x = "total_abundance", y = "NH4_flux µg per square metre per hour",
+plot_4 <- ggscatter(summary, x = "total_biomass_dry", y = "NH4_flux µg per square metre per hour",
           cor.coef = TRUE, cor.method = "pearson",
-          xlab = "total fauna abundance", ylab = "ammonium flux") 
+          xlab = "total fauna abundance", ylab = "ammonium flux")
+
+
 
 # adapt script above, using the correct correlation test, add script here for plots 3 and 4 and put together in one plot 
 
@@ -149,7 +150,7 @@ plot_2 <- ggscatter(summary, x = "total_abundance", y = "NH4_flux µg per square
 If one of them is significant we can redo figure with added significance line. Adapt to whichever plot is significant. 
 
 ```{r}
-plot_1 <- ggscatter(summary, x = "total_abundance", y = "O2_flux mg per square metre per hour",
+plot_4 <- ggscatter(summary, x = "total_biomass_dry", y = "NH4_flux µg per square metre per hour",
           add = "reg.line", conf.int = TRUE, 
           cor.coef = TRUE, cor.method = "pearson",
           xlab = "total fauna abundance", ylab = "oxygen flux") 

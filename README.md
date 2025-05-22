@@ -54,16 +54,12 @@ The overall goal of the course is to explore differences in carbon stocks, fluxe
 
 Before Friday, download R Studio and relevant packages. Ask Lydia if you have problems....
 
-## Session 1 - Friday pm
+## Session - 10am Saturday
 
 Univariate analysis - Kruskal-Wallis test, ANOVA, multiple pairwise-comparisons
-
-We will run script 1 in the reports folder to explore the productivity data from the fucus incubations.
-
-## Session 2 - 10am Saturday
 
 Univariate analysis - correlation (pearsons vs spearmans rank)
 
 Multivariate analysis - nMDS, PERMANOVA
 
-We will run scripts 2, 3 & 4 in the reports folder.
+We will run scripts 1, 2, 3 & 4 in the reports folder.
