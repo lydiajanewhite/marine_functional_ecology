@@ -33,9 +33,9 @@ gs4_deauth()
 
 # import carbon_stocks_m2 sheet
 
-#stocks <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s", sheet = "carbon_stocks_m2") #2025
+#stocks <- read_sheet("1AyJXPaJZMl1a4vogToBIMSoPDGY2wBq8K3k8g9EptRc", sheet = "carbon_stocks_m2") #2025
 
-stocks <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc", sheet = "carbon_stocks_m2") #2024
+stocks <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc", sheet = "carbon_stocks_m2") #2023
 
 
 ```
@@ -71,7 +71,7 @@ ggplot(stocks_long, aes(x = site, y = carbon_stock, fill = site)) +
   facet_wrap(~ compartment)
 ```
 
-We can tidy up the plot a bit, we **1)** edit the order of the plots, **2)** edit the y axis label and **3)** remove the legend 
+We can tidy up the plot a bit, we **1)** edit the order of the plots, **2)** edit the y axis label, **3)** remove the legend and **4)** make the axis scale easier to interpret
 
 ```{r}
 compartment_order <- c("C_total", "C_benthos", "C_vegetation",
@@ -79,7 +79,7 @@ compartment_order <- c("C_total", "C_benthos", "C_vegetation",
 
 ggplot(stocks_long, aes(x = site, y = carbon_stock, fill = site)) +
   geom_boxplot() +
-  facet_wrap(~ factor(compartment, levels = compartment_order)) +
+  facet_wrap(~ factor(compartment, levels = compartment_order), scales = "free") +
   ylab("g carbon per m2") +
   theme(legend.position = "none")
 ```

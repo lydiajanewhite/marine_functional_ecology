@@ -33,9 +33,9 @@ library(vegan)
 ```{r}
 gs4_deauth()
 
-#abundance <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s" , sheet = "benthos_abundance_per sample") #2025
+#abundance <- read_sheet("1AyJXPaJZMl1a4vogToBIMSoPDGY2wBq8K3k8g9EptRc" , sheet = "benthos_abundance_per sample") #2025
 
-abundance <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc" , sheet = "benthos_abundance_per sample") #2024
+abundance <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc" , sheet = "benthos_abundance_per sample") #2023
 
 
 ```
@@ -65,9 +65,9 @@ R doesn't recognise empty spaces from the excel file, we need to tell it they ar
 So we replace NA with zero on all numeric columns. 
 
 ```{r}
-species_matrix <- abundance %>% select (-site, -date, -replicate, -treatment, -total_abundance) %>% data.frame(row.names = "sample")
+species_matrix <- abundance %>% select (-site, -date, -replicate, -treatment, -total_abundance, -abundance_per_m2) %>% data.frame(row.names = "sample")
 
-environmental_table <- abundance %>% select (sample, site, date, replicate, treatment, total_abundance) 
+environmental_table <- abundance %>% select (sample, site, date, replicate, treatment, total_abundance, abundance_per_m2) 
 
 species_matrix <- mutate_all(species_matrix, ~as.numeric(replace_na(.,0)))
 
@@ -78,7 +78,7 @@ richness <- tibble(sample = names(richness), species_richness = richness) %>%
 
 ggplot(richness, aes(x=site, y=species_richness, fill=site)) + 
   geom_boxplot() +
-  ylab("mean species richness per quadrat") +
+  ylab("species richness per sample") +
   theme(legend.position="none") 
 
 
@@ -200,5 +200,5 @@ ggplot(biomass, aes(x=site, y=total_biomass_dry, fill=site)) +
 
 ```
 
-In order to do multivariate stastitics on biomass data, individual species must be weighed which is not feasible here, due to low abudances in our samples. 
+In order to do multivariate statistics on biomass data, individual species must be weighed which is not feasible here, due to low abundances in our samples. 
 

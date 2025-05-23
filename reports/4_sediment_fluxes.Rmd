@@ -32,7 +32,7 @@ library(ggpubr)
 ```{r}
 gs4_deauth()
 
-# fluxes <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s", sheet = "sediment_fluxes") #2025
+# fluxes <- read_sheet("1AyJXPaJZMl1a4vogToBIMSoPDGY2wBq8K3k8g9EptRc", sheet = "sediment_fluxes") #2025
 
 fluxes <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc", sheet = "sediment_fluxes") #2024
 
@@ -67,25 +67,29 @@ dark <- fluxes %>% filter (treatment =="D")
 
 We can explore how fluxes from the sediment are affected by faunal communities via scatter plots. We also need to load in the fauna data, which is per sample. 
 
-So we scale up the fauna data to per m squared by multiplying by 0.042^2*PI (i.e. the surface area of the core) 
+So we scale up the fauna data to per m squared by dividing by 0.042^2*PI (i.e. the surface area of the core in m2) 
 
 ### Import data
 ```{r}
 
-#abundance <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s" , sheet = "benthos_abundance_per sample")
+#abundance <- read_sheet("1AyJXPaJZMl1a4vogToBIMSoPDGY2wBq8K3k8g9EptRc" , sheet = "benthos_abundance_per sample")
+#2025
 
 abundance <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc" , sheet = "benthos_abundance_per sample")
+#2023
 
 abundance <- abundance %>% select(sample, total_abundance) %>% 
-  mutate (total_abundance = total_abundance*0.042^2*pi)
+  mutate (total_abundance_persqm = total_abundance/0.042^2*pi,)
 
 
-#biomass <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s" , sheet = "benthos_biomass_per sample")
+#biomass <- read_sheet("1AyJXPaJZMl1a4vogToBIMSoPDGY2wBq8K3k8g9EptRc" , sheet = "benthos_biomass_per sample")
+#2025
 
 biomass <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc" , sheet = "benthos_biomass_per sample")
+#2023
 
 biomass  <- biomass %>% select(sample, total_biomass_dry) %>% 
-  mutate (total_biomass_dry = total_biomass_dry*0.042^2*pi)
+  mutate (total_biomass_dry_persqm = total_biomass_dry/0.042^2*pi)
 
 ```
 
@@ -102,10 +106,10 @@ summary <- inner_join(dark, abundance, by = "sample") %>%
 
 ```{r}
 
-plot_1 <- ggscatter(summary, x = "total_abundance", y = "O2_flux mg per square metre per hour")
-plot_2 <- ggscatter(summary, x = "total_abundance", y = "NH4_flux µg per square metre per hour")
-plot_3 <- ggscatter(summary, x = "total_biomass_dry", y = "O2_flux mg per square metre per hour")
-plot_4 <- ggscatter(summary, x = "total_biomass_dry", y = "NH4_flux µg per square metre per hour")
+plot_1 <- ggscatter(summary, x = "total_abundance_persqm", y = "O2_flux mg per square metre per hour")
+plot_2 <- ggscatter(summary, x = "total_abundance_persqm", y = "NH4_flux µg per square metre per hour")
+plot_3 <- ggscatter(summary, x = "total_biomass_dry_persqm", y = "O2_flux mg per square metre per hour")
+plot_4 <- ggscatter(summary, x = "total_biomass_dry_persqm", y = "NH4_flux µg per square metre per hour")
 
 (plot_1 + plot_2)/
   (plot_3 + plot_4)
@@ -118,8 +122,8 @@ Check if data is normal for the 4 variables with shapiro-wilk test, p < 0.05 mea
 If data is normal use pearsons correlation, if its non-normal then use spearmans rank.
 
 ```{r}
-shapiro.test(summary$total_abundance)
-shapiro.test(summary$total_biomass_dry)
+shapiro.test(summary$total_abundance_persqm)
+shapiro.test(summary$total_biomass_dry_persqm)
 shapiro.test(summary$`O2_flux mg per square metre per hour`)
 shapiro.test(summary$`NH4_flux µg per square metre per hour`)
 ```
@@ -128,37 +132,20 @@ Some are normal, some might not be, we can replot the data showing correlation c
 Adjust which correlation test (spearmans rank or pearsons) you use depending if variables are non-normal or normal. 
 Adapt examples below for your data. 
 
+You can edit labels for x and y axis as you see fit..... 
+
 ```{r}
-plot_1 <- ggscatter(summary, x = "total_abundance", y = "O2_flux mg per square metre per hour",
+plot_1 <- ggscatter(summary, x = "total_abundance_persqm", y = "O2_flux mg per square metre per hour",
           cor.coef = TRUE, cor.method = "spearman", # not-normal
           xlab = "total fauna abundance", ylab = "oxygen flux") 
 
-plot_4 <- ggscatter(summary, x = "total_biomass_dry", y = "NH4_flux µg per square metre per hour",
-          cor.coef = TRUE, cor.method = "pearson",
-          xlab = "total fauna abundance", ylab = "ammonium flux")
 
-
-
-# adapt script above, using the correct correlation test, add script here for plots 3 and 4 and put together in one plot 
+# adapt script above, using the correct correlation test, add script here for plots 2, 3 and 4 and put together in one plot 
 
 (plot_1 + plot_2)/
   (plot_3 + plot_4)
 
 
-```
-
-If one of them is significant we can redo figure with added significance line. Adapt to whichever plot is significant. 
-
-```{r}
-plot_4 <- ggscatter(summary, x = "total_biomass_dry", y = "NH4_flux µg per square metre per hour",
-          add = "reg.line", conf.int = TRUE, 
-          cor.coef = TRUE, cor.method = "pearson",
-          xlab = "total fauna abundance", ylab = "oxygen flux") 
-
-# adapt script to add line for whichever plots have significant variables. 
-
-(plot_1 + plot_2)/
-  (plot_3 + plot_4)
 ```
 
 ## Are fluxes affected by organic matter in the sediment?
@@ -170,9 +157,9 @@ We can also explore how fluxes from the sediment are affected by the amount of c
 But we only need dark core carbon stock data, as we are comparing against respiration rates, and we don't need carbon stock data from the deep site you visited with Augusta as we didn't carry out any incubations there. 
 ```{r}
 
-# carbon_stocks <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s", sheet = "carbon_stocks_m2") 
+# carbon_stocks <- read_sheet("1AyJXPaJZMl1a4vogToBIMSoPDGY2wBq8K3k8g9EptRc", sheet = "carbon_stocks_m2") #2025
 
-carbon_stocks <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc", sheet = "carbon_stocks_m2") 
+carbon_stocks <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc", sheet = "carbon_stocks_m2") #2023
 
 sed_summary <- inner_join(dark, carbon_stocks, by = c("site", "treatment", "replicate"))
 ```
@@ -216,6 +203,23 @@ plot_6 <- ggscatter(sed_summary, x = "C_sediment", y = "NH4_flux µg per square 
 
 ```
 
+If one of them is significant we can redo figure with added significance line. 
+
+Adapt to whichever plot is significant.
+
+```{r}
+
+# adapt script to add line for whichever plots have significant variables. 
+
+plot_6 <- ggscatter(sed_summary, x = "C_sediment", y = "NH4_flux µg per square metre per hour",
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "spearman",
+          xlab = "sediment carbon content", ylab = "ammonium flux") 
+
+(plot_1 + plot_2) /
+  (plot_3 + plot_4) /
+    (plot_5 + plot_6 )
+```
 
 
 

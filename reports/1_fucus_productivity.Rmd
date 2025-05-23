@@ -29,9 +29,9 @@ library(googlesheets4)
 
 ```{r}
 gs4_deauth()
-#productivity <- read_sheet("1fXSKn11OsET_SrR7sIbFTcflnglbaVWv44oULKhfo4s", sheet = "fucus_productivity_summary") #2025
+#productivity <- read_sheet("1AyJXPaJZMl1a4vogToBIMSoPDGY2wBq8K3k8g9EptRc", sheet = "fucus_productivity_summary") #2025
 
-productivity <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc", sheet = "fucus_productivity_summary") #2024
+productivity <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc", sheet = "fucus_productivity_summary") #2023
 
 
 ```
