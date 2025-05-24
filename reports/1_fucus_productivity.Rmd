@@ -61,7 +61,7 @@ We can tidy up the plot a bit, we 1) edit the y axis label and 2) remove the leg
 ggplot(productivity_long, aes(x=site, y= carbon_flux, fill = site))+
   geom_boxplot() +
   facet_wrap(~metabolism) +
-  ylab("g carbon per g fucus per hour") +
+  ylab("g carbon per g fucus per hour") + # adds nice axis title 
   theme(legend.position="none")
 
 ```

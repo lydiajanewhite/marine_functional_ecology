@@ -166,6 +166,11 @@ You can explore which taxa contribute the most to identified differences between
 
 SIMPER is intended for comparisons among levels of a categorical variable, where the response matrix is expressed as a distance matrix, particularly the Bray-Curtis dissimilarity measure.
 
+
+More information about how to interpret SIMPER results can be found here:
+
+https://uw.pressbooks.pub/appliedmultivariatestatistics/chapter/simper/
+
 ```{r}
 test<- with(environmental_table, simper(species_matrix_rel, site))
 summary(test)

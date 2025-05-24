@@ -63,3 +63,7 @@ Univariate analysis - correlation (pearsons vs spearmans rank)
 Multivariate analysis - nMDS, PERMANOVA
 
 We will run scripts 1, 2, 3 & 4 in the reports folder.
+
+## Important things to know...  
+
+To export plots for your report from the Rmd scripts, copy and paste the code from the script directly into the console (bottom left panel) and use export function in plot window (bottom right panel) you can edit the size when you export.

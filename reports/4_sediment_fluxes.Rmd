@@ -43,14 +43,16 @@ fluxes <- read_sheet("1STH7IQobfCN5dumGnuSGqDiIoqHk1IkAUg3TTRu0pVc", sheet = "se
 
 Visualise with boxplots of O2 and ammonium for different sites. 
 
+You can edit labels for x and y axis as you see fit..... for example you can rename the labels, you can make a long label go over 2 lines using "\n"
+
 ```{r}
 ggplot(fluxes, aes(x=site, y= `O2_flux mg per square metre per hour`, fill = treatment)) + 
   geom_boxplot() +
-  ylab("mg O2 per square metre per hour")
+  ylab("mg O2 per\nsquare metre per hour")
 
 ggplot(fluxes, aes(x=site, y= `NH4_flux µg per square metre per hour`, fill =  treatment)) + 
   geom_boxplot() +
-  ylab("µg NH4-N per square metre per hour")
+  ylab("µg NH4-N per\nsquare metre per hour")
 
 ```
 
@@ -114,6 +116,7 @@ plot_4 <- ggscatter(summary, x = "total_biomass_dry_persqm", y = "NH4_flux µg p
 (plot_1 + plot_2)/
   (plot_3 + plot_4)
 
+
 ```
 
 ### Check assumptions for correlation
@@ -130,14 +133,19 @@ shapiro.test(summary$`NH4_flux µg per square metre per hour`)
 
 Some are normal, some might not be, we can replot the data showing correlation coefficents. 
 Adjust which correlation test (spearmans rank or pearsons) you use depending if variables are non-normal or normal. 
-Adapt examples below for your data. 
 
-You can edit labels for x and y axis as you see fit..... 
+More information about when to use pearsons or spearmans rank correlation tests can be found here: 
+
+https://www.sthda.com/english/wiki/correlation-test-between-two-variables-in-r#google_vignette
+
+Adapt the examples below for your data. 
+
+You can edit labels for x and y axis as you see fit..... for example you can rename the labels and you can spread a long label over 2 lines using "\n"
 
 ```{r}
 plot_1 <- ggscatter(summary, x = "total_abundance_persqm", y = "O2_flux mg per square metre per hour",
           cor.coef = TRUE, cor.method = "spearman", # not-normal
-          xlab = "total fauna abundance", ylab = "oxygen flux") 
+          xlab = "total fauna\nabundance", ylab = "oxygen flux") 
 
 
 # adapt script above, using the correct correlation test, add script here for plots 2, 3 and 4 and put together in one plot 
@@ -191,11 +199,11 @@ We can replot with correlation coefficients.
 
 plot_5 <- ggscatter(sed_summary, x = "C_sediment", y = "O2_flux mg per square metre per hour",
           cor.coef = TRUE, cor.method = "spearman",
-          xlab = "sediment carbon content", ylab = "oxygen flux") 
+          xlab = "sediment carbon content\n(g per square metre)", ylab = "O2_flux (mg per\nsquare metre per hour)") 
 
 plot_6 <- ggscatter(sed_summary, x = "C_sediment", y = "NH4_flux µg per square metre per hour",
           cor.coef = TRUE, cor.method = "spearman",
-          xlab = "sediment carbon content", ylab = "ammonium flux") 
+          xlab = "sediment carbon content\n(g per square metre)", ylab = "NH4_flux (µg per\nsquare metre per hour)") 
 
 (plot_1 + plot_2) /
   (plot_3 + plot_4) /
